@@ -12,7 +12,9 @@ module GameModuleName {
 
         init() {
             // Set scale using ScaleManager
+            this.game.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
             // Set background color
+            this.game.scale.fullScreenScaleMode = Phaser.ScaleManager.SHOW_ALL;
         }
 
         preload() {
@@ -40,6 +42,20 @@ module GameModuleName {
 
         create() {
             this.game.state.start("GameState");
+        }
+    }
+
+    /*
+     * Mine class
+     */
+    export class Mine {
+        x: number;
+        y: number;
+        isTrap: boolean = false;
+
+        constructor(xPosition: number, yPosition: number) {
+            this.x = xPosition;
+            this.y = yPosition;
         }
     }
 
