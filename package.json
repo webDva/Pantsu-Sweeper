@@ -1,8 +1,14 @@
 {
-    "name": "Pantsu_Sweeper",
-    "version": "1.0.0",
-    "keywords": ["util", "functional", "server", "client", "browser"],
-    "author": "jeast",
-    "contributors": [],
-    "dependencies": {}
+  "name": "Pantsu Sweeper",
+  "version": "0.0.1",
+  "keywords": [
+    "game",
+    "HTML5",
+    "phaser"
+  ],
+  "author": "Web D.va",
+  "contributors": [],
+  "dependencies": {
+    "phaser-ce": "^2.8.4"
+  }
 }
