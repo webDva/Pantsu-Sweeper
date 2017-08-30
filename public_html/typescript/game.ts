@@ -69,7 +69,15 @@ module GameModuleName {
         }
 
         createMinefield(rows: number, columns: number) {
-
+            this.mines = [];
+            for (let i = 0; i < rows; i++) {
+                this.mines.push(new Array());
+                for (let j = 0; j < columns; j++) {
+                    // Initially, the vector coordinates will be represented by index values.
+                    // So, when rendering, change based on these index values.
+                    this.mines[i].push(new Mine(j, i));
+                }
+            }
         }
     }
 
@@ -84,6 +92,8 @@ module GameModuleName {
         }
 
         create() {
+            //test
+            let a = new Minefield(3, 3);
         }
 
         update() {
