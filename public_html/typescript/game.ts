@@ -13,8 +13,7 @@ module GameModuleName {
         init() {
             // Set scale using ScaleManager
             this.game.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
-            // Set background color
-            this.game.scale.fullScreenScaleMode = Phaser.ScaleManager.SHOW_ALL;
+            // Set background color            
         }
 
         preload() {
@@ -56,6 +55,21 @@ module GameModuleName {
         constructor(xPosition: number, yPosition: number) {
             this.x = xPosition;
             this.y = yPosition;
+        }
+    }
+
+    /*
+     * Handles the creation of minefields and manages states.
+     */
+    export class Minefield {
+        mines: Array<Array<Mine>>; // Two dimensional array to contain the mines.
+
+        constructor(rows: number, columns: number) {
+            this.createMinefield(rows, columns);
+        }
+
+        createMinefield(rows: number, columns: number) {
+
         }
     }
 
