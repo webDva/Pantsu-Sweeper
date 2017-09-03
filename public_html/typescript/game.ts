@@ -52,6 +52,8 @@ module GameModuleName {
         y: number;
         isTrap: boolean = false;
 
+        static WIDTH_AND_HEIGHT: number = 32;
+
         constructor(xPosition: number, yPosition: number) {
             this.x = xPosition;
             this.y = yPosition;
@@ -63,19 +65,19 @@ module GameModuleName {
      */
     export class Minefield {
         mines: Array<Array<Mine>>; // Two dimensional array to contain the mines.
+        widthMine: number = Mine.WIDTH_AND_HEIGHT;
+        heightMine: number = Mine.WIDTH_AND_HEIGHT;
 
         constructor(rows: number, columns: number) {
-            this.createMinefield(rows, columns);
+            this.createMinefield(rows, columns, new Phaser.Point(0, 0));
         }
 
-        createMinefield(rows: number, columns: number) {
+        createMinefield(rows: number, columns: number, location: Phaser.Point) { // location is the upper-left 2D vector position
             this.mines = [];
             for (let i = 0; i < rows; i++) {
                 this.mines.push(new Array());
                 for (let j = 0; j < columns; j++) {
-                    // Initially, the vector coordinates will be represented by index values.
-                    // So, when rendering, change based on these index values.
-                    this.mines[i].push(new Mine(j, i));
+                    this.mines[i].push(new Mine(this.widthMine * j * (2 + location.x), this.heightMine * i * (2 + location.y)));
                 }
             }
         }
@@ -93,7 +95,16 @@ module GameModuleName {
 
         create() {
             //test
-            let a = new Minefield(3, 3);
+            let minefield = new Minefield(3, 3);
+            // now draw
+            let square = this.game.add.bitmapData(Mine.WIDTH_AND_HEIGHT, Mine.WIDTH_AND_HEIGHT);
+            square.rect(0, 0, Mine.WIDTH_AND_HEIGHT, Mine.WIDTH_AND_HEIGHT, "rgb(255, 255, 255)");
+            this.game.cache.addBitmapData("square", square);
+            for (let i = 0; i < minefield.mines.length; i++) {
+                for (let j = 0; j < minefield.mines[i].length; j++) {
+                    this.game.add.sprite(minefield.mines[i][j].x, minefield.mines[i][j].y, this.game.cache.getBitmapData("square"));
+                }
+            }
         }
 
         update() {
