@@ -89,37 +89,27 @@ module GameModuleName {
     }
 
     /*
-     * Handles the creation of square fields and manages states.
-     */
-    export class SqaureField {
-        allSquares: Array<Array<Square>>; // Two dimensional array to contain the square.
-        widthMine: number = Square.WIDTH_AND_HEIGHT;
-        heightMine: number = Square.WIDTH_AND_HEIGHT;
-
-        chosenSquare: Square; // The currently selected square.
-
-        constructor(rows: number, columns: number, phaserGame: Phaser.Game) {
-            this.createSquareField(rows, columns, new Phaser.Point(10, 10), phaserGame);
-        }
-
-        createSquareField(rows: number, columns: number, location: Phaser.Point, phaserGame: Phaser.Game) { // location is the upper-left 2D vector position
-            this.allSquares = [];
-            for (let i = 0; i < rows; i++) {
-                this.allSquares.push(new Array());
-                for (let j = 0; j < columns; j++) {
-                    this.allSquares[i].push(new Square(phaserGame, ((this.widthMine * j) + j) + location.x, ((this.heightMine * i) + i) + location.y, phaserGame.cache.getBitmapData("square")));
-                }
-            }
-        }
-    }
-
-    /*
      * The main game running state
      */
     export class GameState extends Phaser.State {
         game: Phaser.Game;
 
-        squareField: SqaureField;
+        // The following set of variables are for handling square field states and square fields themselves.
+        allSquares: Array<Array<Square>>; // Two dimensional array to contain the square.
+        widthMine: number = Square.WIDTH_AND_HEIGHT;
+        heightMine: number = Square.WIDTH_AND_HEIGHT;
+        chosenSquare: Square; // The currently selected square.        
+
+        createSquareField(rows: number, columns: number) {
+            let location = new Phaser.Point(0, 0); // location is the upper-left 2D vector position.
+            this.allSquares = [];
+            for (let i = 0; i < rows; i++) {
+                this.allSquares.push(new Array());
+                for (let j = 0; j < columns; j++) {
+                    this.allSquares[i].push(new Square(this.game, ((this.widthMine * j) + j) + location.x, ((this.heightMine * i) + i) + location.y, this.game.cache.getBitmapData("square")));
+                }
+            }
+        }
 
         constructor() {
             super();
@@ -127,7 +117,7 @@ module GameModuleName {
 
         create() {
             //test
-            this.squareField = new SqaureField(10, 10, this.game);
+            this.createSquareField(10, 10);
 
             this.game.stage.backgroundColor = "#0d35a3";
         }
