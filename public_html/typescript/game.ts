@@ -37,6 +37,11 @@ module GameModuleName {
         preload() {
             // Display the loading screen image
             // Load assets
+
+            // test square graphic
+            let square = this.game.add.bitmapData(Square.WIDTH_AND_HEIGHT, Square.WIDTH_AND_HEIGHT);
+            square.rect(0, 0, Square.WIDTH_AND_HEIGHT, Square.WIDTH_AND_HEIGHT, "rgb(255, 255, 255)");
+            this.game.cache.addBitmapData("square", square);
         }
 
         create() {
@@ -45,18 +50,27 @@ module GameModuleName {
     }
 
     /*
-     * Mine class
+     * A square that can be clicked on. May be a trapped mine or a reward square.
      */
-    export class Mine {
-        x: number;
-        y: number;
-        isTrap: boolean = false;
+    export class Square extends Phaser.Sprite {
 
+        isTrap: boolean = false;
         static WIDTH_AND_HEIGHT: number = 32;
 
-        constructor(xPosition: number, yPosition: number) {
-            this.x = xPosition;
-            this.y = yPosition;
+        constructor(game: Phaser.Game, x: number, y: number, key: Phaser.BitmapData) {
+            super(game, x, y, key);
+
+            // Make the square clickable.
+            this.inputEnabled = true;
+
+            // Callback to set the chosen square.
+            this.events.onInputDown.add(() => {
+                // test destroy
+                this.destroy();
+            }, this);
+
+            // Adding the sprite to the display list so that it can be displayed.
+            this.game.stage.addChild(this);
         }
     }
 
@@ -64,20 +78,22 @@ module GameModuleName {
      * Handles the creation of minefields and manages states.
      */
     export class Minefield {
-        mines: Array<Array<Mine>>; // Two dimensional array to contain the mines.
-        widthMine: number = Mine.WIDTH_AND_HEIGHT;
-        heightMine: number = Mine.WIDTH_AND_HEIGHT;
+        mines: Array<Array<Square>>; // Two dimensional array to contain the mines.
+        widthMine: number = Square.WIDTH_AND_HEIGHT;
+        heightMine: number = Square.WIDTH_AND_HEIGHT;
 
-        constructor(rows: number, columns: number) {
-            this.createMinefield(rows, columns, new Phaser.Point(0, 0));
+        chosenSquare: Square; // The currently selected square.
+
+        constructor(rows: number, columns: number, phaserGame: Phaser.Game) {
+            this.createMinefield(rows, columns, new Phaser.Point(10, 10), phaserGame);
         }
 
-        createMinefield(rows: number, columns: number, location: Phaser.Point) { // location is the upper-left 2D vector position
+        createMinefield(rows: number, columns: number, location: Phaser.Point, phaserGame: Phaser.Game) { // location is the upper-left 2D vector position
             this.mines = [];
             for (let i = 0; i < rows; i++) {
                 this.mines.push(new Array());
                 for (let j = 0; j < columns; j++) {
-                    this.mines[i].push(new Mine(this.widthMine * j * (2 + location.x), this.heightMine * i * (2 + location.y)));
+                    this.mines[i].push(new Square(phaserGame, ((this.widthMine * j) + j) + location.x, ((this.heightMine * i) + i) + location.y, phaserGame.cache.getBitmapData("square")));
                 }
             }
         }
@@ -89,22 +105,17 @@ module GameModuleName {
     export class GameState extends Phaser.State {
         game: Phaser.Game;
 
+        mineField: Minefield;
+
         constructor() {
             super();
         }
 
         create() {
             //test
-            let minefield = new Minefield(3, 3);
-            // now draw
-            let square = this.game.add.bitmapData(Mine.WIDTH_AND_HEIGHT, Mine.WIDTH_AND_HEIGHT);
-            square.rect(0, 0, Mine.WIDTH_AND_HEIGHT, Mine.WIDTH_AND_HEIGHT, "rgb(255, 255, 255)");
-            this.game.cache.addBitmapData("square", square);
-            for (let i = 0; i < minefield.mines.length; i++) {
-                for (let j = 0; j < minefield.mines[i].length; j++) {
-                    this.game.add.sprite(minefield.mines[i][j].x, minefield.mines[i][j].y, this.game.cache.getBitmapData("square"));
-                }
-            }
+            this.mineField = new Minefield(10, 10, this.game);
+
+            this.game.stage.backgroundColor = "#0d35a3";
         }
 
         update() {
