@@ -54,7 +54,8 @@ module GameModuleName {
      */
     export class Square extends Phaser.Sprite {
 
-        isTrap: boolean = false;
+        isTrapSqaure: boolean = false;
+        isRewardSquare: boolean = false;
         static WIDTH_AND_HEIGHT: number = 32;
 
         constructor(game: Phaser.Game, x: number, y: number, key: Phaser.BitmapData) {
@@ -65,35 +66,48 @@ module GameModuleName {
 
             // Callback to set the chosen square.
             this.events.onInputDown.add(() => {
-                // test destroy
+                if (this.isTrapSqaure) {
+                    console.log('boom'); // just a test, ugh
+                } else if (this.isRewardSquare) {
+                    console.log('yatta!');
+                } else {
+                    console.log('safe!');
+                }
                 this.destroy();
             }, this);
 
             // Adding the sprite to the display list so that it can be displayed.
             this.game.stage.addChild(this);
+
+            // Make the square either a trap, reward, or normal square.
+            if (Math.random() <= 0.10) {
+                this.isTrapSqaure = true;
+            } else if (Math.random() <= 0.20) { // Otherwise, it's normal.
+                this.isRewardSquare = true;
+            }
         }
     }
 
     /*
-     * Handles the creation of minefields and manages states.
+     * Handles the creation of square fields and manages states.
      */
-    export class Minefield {
-        mines: Array<Array<Square>>; // Two dimensional array to contain the mines.
+    export class SqaureField {
+        allSquares: Array<Array<Square>>; // Two dimensional array to contain the square.
         widthMine: number = Square.WIDTH_AND_HEIGHT;
         heightMine: number = Square.WIDTH_AND_HEIGHT;
 
         chosenSquare: Square; // The currently selected square.
 
         constructor(rows: number, columns: number, phaserGame: Phaser.Game) {
-            this.createMinefield(rows, columns, new Phaser.Point(10, 10), phaserGame);
+            this.createSquareField(rows, columns, new Phaser.Point(10, 10), phaserGame);
         }
 
-        createMinefield(rows: number, columns: number, location: Phaser.Point, phaserGame: Phaser.Game) { // location is the upper-left 2D vector position
-            this.mines = [];
+        createSquareField(rows: number, columns: number, location: Phaser.Point, phaserGame: Phaser.Game) { // location is the upper-left 2D vector position
+            this.allSquares = [];
             for (let i = 0; i < rows; i++) {
-                this.mines.push(new Array());
+                this.allSquares.push(new Array());
                 for (let j = 0; j < columns; j++) {
-                    this.mines[i].push(new Square(phaserGame, ((this.widthMine * j) + j) + location.x, ((this.heightMine * i) + i) + location.y, phaserGame.cache.getBitmapData("square")));
+                    this.allSquares[i].push(new Square(phaserGame, ((this.widthMine * j) + j) + location.x, ((this.heightMine * i) + i) + location.y, phaserGame.cache.getBitmapData("square")));
                 }
             }
         }
@@ -105,7 +119,7 @@ module GameModuleName {
     export class GameState extends Phaser.State {
         game: Phaser.Game;
 
-        mineField: Minefield;
+        squareField: SqaureField;
 
         constructor() {
             super();
@@ -113,7 +127,7 @@ module GameModuleName {
 
         create() {
             //test
-            this.mineField = new Minefield(10, 10, this.game);
+            this.squareField = new SqaureField(10, 10, this.game);
 
             this.game.stage.backgroundColor = "#0d35a3";
         }
