@@ -12,7 +12,7 @@ module GameModuleName {
 
         init() {
             // Set scale using ScaleManager
-            this.game.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
+            this.game.scale.scaleMode = Phaser.ScaleManager.RESIZE;
             // Set background color            
         }
 
@@ -119,7 +119,7 @@ module GameModuleName {
             this.allSquares = [];
             for (let i = 0; i < rows; i++) {
                 for (let j = 0; j < columns; j++) {
-                    this.allSquares.push(new Square(this, ((this.widthMine * j) + j) + location.x, ((this.heightMine * i) + i) + location.y, this.game.cache.getBitmapData("square")));
+                    this.allSquares.push(new Square(this, this.widthMine * j + j * 2 + location.x, this.heightMine * i + i * 2 + location.y, this.game.cache.getBitmapData("square")));
                 }
             }
         }
