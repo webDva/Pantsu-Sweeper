@@ -58,13 +58,13 @@ module GameModuleName {
         isRewardSquare: boolean = false;
         static WIDTH_AND_HEIGHT: number = 32;
 
-        constructor(game: Phaser.Game, x: number, y: number, key: Phaser.BitmapData) {
-            super(game, x, y, key);
+        constructor(gameState: GameState, x: number, y: number, key: Phaser.BitmapData) {
+            super(gameState.game, x, y, key);
 
             // Make the square clickable.
             this.inputEnabled = true;
 
-            // Callback to set the chosen square.
+            // Callback that handles what happens when this square is clicked on.
             this.events.onInputDown.add(() => {
                 if (this.isTrapSqaure) {
                     console.log('boom'); // just a test, ugh
@@ -98,7 +98,7 @@ module GameModuleName {
         allSquares: Array<Array<Square>>; // Two dimensional array to contain the square.
         widthMine: number = Square.WIDTH_AND_HEIGHT;
         heightMine: number = Square.WIDTH_AND_HEIGHT;
-        chosenSquare: Square; // The currently selected square.        
+        safeSquaresRemaining: number;
 
         createSquareField(rows: number, columns: number) {
             let location = new Phaser.Point(0, 0); // location is the upper-left 2D vector position.
@@ -106,7 +106,7 @@ module GameModuleName {
             for (let i = 0; i < rows; i++) {
                 this.allSquares.push(new Array());
                 for (let j = 0; j < columns; j++) {
-                    this.allSquares[i].push(new Square(this.game, ((this.widthMine * j) + j) + location.x, ((this.heightMine * i) + i) + location.y, this.game.cache.getBitmapData("square")));
+                    this.allSquares[i].push(new Square(this, ((this.widthMine * j) + j) + location.x, ((this.heightMine * i) + i) + location.y, this.game.cache.getBitmapData("square")));
                 }
             }
         }
