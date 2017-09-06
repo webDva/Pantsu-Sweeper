@@ -61,6 +61,8 @@ module GameModuleName {
         constructor(gameState: GameState, x: number, y: number, key: Phaser.BitmapData) {
             super(gameState.game, x, y, key);
 
+            let theGame = gameState; // For accessing the list of currently active squares and stuff.
+
             // Make the square clickable.
             this.inputEnabled = true;
 
