@@ -70,12 +70,15 @@ module GameModuleName {
             this.events.onInputDown.add(() => {
                 if (this.isTrapSqaure) {
                     console.log('boom'); // just a test, ugh
+                    theGame.enterGameOverState();
                 } else if (this.isRewardSquare) {
                     console.log('yatta!');
+                    // Randomly destroy multiple safe squares.
+                    theGame.destroySquare(this); // Destroy this square, first, though.
                 } else {
+                    theGame.destroySquare(this);
                     console.log('safe!');
                 }
-                this.destroy();
             }, this);
 
             // Adding the sprite to the display list so that it can be displayed.
@@ -97,20 +100,30 @@ module GameModuleName {
         game: Phaser.Game;
 
         // The following set of variables are for handling square field states and square fields themselves.
-        allSquares: Array<Array<Square>>; // Two dimensional array to contain the square.
+        allSquares: Array<Square>;
         widthMine: number = Square.WIDTH_AND_HEIGHT;
         heightMine: number = Square.WIDTH_AND_HEIGHT;
         safeSquaresRemaining: number;
+        score: number;
 
         createSquareField(rows: number, columns: number) {
             let location = new Phaser.Point(0, 0); // location is the upper-left 2D vector position.
             this.allSquares = [];
             for (let i = 0; i < rows; i++) {
-                this.allSquares.push(new Array());
                 for (let j = 0; j < columns; j++) {
-                    this.allSquares[i].push(new Square(this, ((this.widthMine * j) + j) + location.x, ((this.heightMine * i) + i) + location.y, this.game.cache.getBitmapData("square")));
+                    this.allSquares.push(new Square(this, ((this.widthMine * j) + j) + location.x, ((this.heightMine * i) + i) + location.y, this.game.cache.getBitmapData("square")));
                 }
             }
+        }
+
+        destroySquare(square: Square) {
+            this.allSquares.splice(this.allSquares.indexOf(square), 1);
+            this.safeSquaresRemaining--;
+            square.destroy();
+        }
+
+        enterGameOverState() {
+
         }
 
         constructor() {
