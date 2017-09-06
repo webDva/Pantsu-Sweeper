@@ -36,7 +36,15 @@ module GameModuleName {
 
         preload() {
             // Display the loading screen image
+
             // Load assets
+
+            // Images
+
+            // Sounds
+            this.game.load.audio('safeSquareSound', 'assets/sounds/hit.wav');
+            this.game.load.audio('rewardSquareSound', 'assets/sounds/reward.wav');
+            this.game.load.audio('trapSquareSound', 'assets/sounds/trap.wav');
 
             // test square graphic
             let square = this.game.add.bitmapData(Square.WIDTH_AND_HEIGHT, Square.WIDTH_AND_HEIGHT);
@@ -69,6 +77,7 @@ module GameModuleName {
             // Callback that handles what happens when this square is clicked on.
             this.events.onInputDown.add(() => {
                 if (this.isTrapSqaure) {
+                    theGame.trapSquareSound.play();
                     theGame.enterGameOverState();
                 } else if (this.isRewardSquare) {
                     // Randomly destroy multiple squares. Traps won't get activated.
@@ -80,9 +89,11 @@ module GameModuleName {
                         }
                         theGame.destroySquare(theGame.allSquares[Math.floor(Math.random() * (Math.floor(theGame.allSquares.length) - Math.ceil(0))) + Math.ceil(0)]);
                         numberOfSquaresDestroyed++;
+                        theGame.rewardSquareSound.play();
                     }
                 } else {
                     theGame.destroySquare(this);
+                    theGame.safeSquareSound.play();
                 }
             }, this);
 
@@ -92,7 +103,7 @@ module GameModuleName {
             // Make the square either a trap, reward, or normal square.
             if (Math.random() <= 0.10) {
                 this.isTrapSqaure = true;
-            } else if (Math.random() <= 0.20) { // Otherwise, it's normal.
+            } else if (Math.random() <= 0.10) { // Otherwise, it's normal.
                 this.isRewardSquare = true;
             }
         }
@@ -111,8 +122,14 @@ module GameModuleName {
         safeSquaresRemaining: number = 0;
         score: number = 0;
 
+        // Text
         scoreText: Phaser.Text;
         safeSquaresRemainingText: Phaser.Text;
+
+        // Sounds
+        safeSquareSound: Phaser.Sound;
+        rewardSquareSound: Phaser.Sound;
+        trapSquareSound: Phaser.Sound;
 
         createSquareField(rows: number, columns: number) {
             let location = new Phaser.Point(0, 0); // location is the upper-left 2D vector position.
@@ -162,6 +179,11 @@ module GameModuleName {
             // Adding the safe squares remaining text too.
             this.safeSquaresRemainingText = this.game.add.text(this.game.width, this.scoreText.height, 'Safes left: ' + this.safeSquaresRemaining, scoreTextStyle);
             this.safeSquaresRemainingText.anchor.setTo(1, 0);
+
+            // Assign sounds from the cache.
+            this.safeSquareSound = this.game.add.audio('safeSquareSound');
+            this.rewardSquareSound = this.game.add.audio('rewardSquareSound');
+            this.trapSquareSound = this.game.add.audio('trapSquareSound');
 
             this.game.stage.backgroundColor = "#0d35a3";
         }
