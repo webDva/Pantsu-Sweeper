@@ -73,8 +73,16 @@ module GameModuleName {
                     theGame.enterGameOverState();
                 } else if (this.isRewardSquare) {
                     console.log('yatta!');
-                    // Randomly destroy multiple safe squares.
+                    // Randomly destroy multiple squares. Traps won't get activated.
                     theGame.destroySquare(this); // Destroy this square, first, though.
+                    let numberOfSquaresDestroyed = 0;
+                    while (numberOfSquaresDestroyed != 10) {
+                        if (theGame.allSquares.length < 1) {
+                            break;
+                        }
+                        theGame.destroySquare(theGame.allSquares[Math.floor(Math.random() * (Math.floor(theGame.allSquares.length) - Math.ceil(0))) + Math.ceil(0)]);
+                        numberOfSquaresDestroyed++;
+                    }
                 } else {
                     theGame.destroySquare(this);
                     console.log('safe!');
