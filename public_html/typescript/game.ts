@@ -12,7 +12,7 @@ module GameModuleName {
 
         init() {
             // Set scale using ScaleManager
-            this.game.scale.scaleMode = Phaser.ScaleManager.RESIZE;
+            this.game.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
             // Set background color            
         }
 
@@ -69,10 +69,8 @@ module GameModuleName {
             // Callback that handles what happens when this square is clicked on.
             this.events.onInputDown.add(() => {
                 if (this.isTrapSqaure) {
-                    console.log('boom'); // just a test, ugh
                     theGame.enterGameOverState();
                 } else if (this.isRewardSquare) {
-                    console.log('yatta!');
                     // Randomly destroy multiple squares. Traps won't get activated.
                     theGame.destroySquare(this); // Destroy this square, first, though.
                     let numberOfSquaresDestroyed = 0;
@@ -85,7 +83,6 @@ module GameModuleName {
                     }
                 } else {
                     theGame.destroySquare(this);
-                    console.log('safe!');
                 }
             }, this);
 
@@ -111,8 +108,11 @@ module GameModuleName {
         allSquares: Array<Square>;
         widthMine: number = Square.WIDTH_AND_HEIGHT;
         heightMine: number = Square.WIDTH_AND_HEIGHT;
-        safeSquaresRemaining: number;
-        score: number;
+        safeSquaresRemaining: number = 0;
+        score: number = 0;
+
+        scoreText: Phaser.Text;
+        safeSquaresRemainingText: Phaser.Text;
 
         createSquareField(rows: number, columns: number) {
             let location = new Phaser.Point(0, 0); // location is the upper-left 2D vector position.
@@ -120,14 +120,22 @@ module GameModuleName {
             for (let i = 0; i < rows; i++) {
                 for (let j = 0; j < columns; j++) {
                     this.allSquares.push(new Square(this, this.widthMine * j + j * 2 + location.x, this.heightMine * i + i * 2 + location.y, this.game.cache.getBitmapData("square")));
+                    if (this.allSquares[this.allSquares.length - 1].isTrapSqaure === false) {
+                        this.safeSquaresRemaining++;
+                    }
                 }
             }
         }
 
         destroySquare(square: Square) {
-            this.allSquares.splice(this.allSquares.indexOf(square), 1);
-            this.safeSquaresRemaining--;
             square.destroy();
+            this.allSquares.splice(this.allSquares.indexOf(square), 1);
+            if (!square.isTrapSqaure) {
+                this.safeSquaresRemaining--;
+                this.safeSquaresRemainingText.text = 'Safes left: ' + this.safeSquaresRemaining;
+            }
+            this.score++;
+            this.scoreText.text = 'Score: ' + this.score;
         }
 
         enterGameOverState() {
@@ -141,6 +149,19 @@ module GameModuleName {
         create() {
             //test
             this.createSquareField(10, 10);
+
+            // Add score text.
+            let scoreTextStyle = {
+                font: '3em "Seqoe UI", Impact, sans-serif',
+                fontWeight: '700',
+                fill: '#42f45f'
+            };
+            this.scoreText = this.game.add.text(this.game.width, 0, 'Score: ' + this.score, scoreTextStyle);
+            this.scoreText.anchor.setTo(1, 0); // Pinned at upper-right hand corner so it can show all of itself.
+
+            // Adding the safe squares remaining text too.
+            this.safeSquaresRemainingText = this.game.add.text(this.game.width, this.scoreText.height, 'Safes left: ' + this.safeSquaresRemaining, scoreTextStyle);
+            this.safeSquaresRemainingText.anchor.setTo(1, 0);
 
             this.game.stage.backgroundColor = "#0d35a3";
         }
