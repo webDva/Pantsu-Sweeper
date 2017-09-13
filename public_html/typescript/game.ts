@@ -120,8 +120,16 @@ module PantsuSweeper {
         squaresGroup: Phaser.Group;
         widthMine: number = Square.WIDTH_AND_HEIGHT;
         heightMine: number = Square.WIDTH_AND_HEIGHT;
-        safeSquaresRemaining: number = 0;
-        score: number = 0;
+        safeSquaresRemaining: number;
+        score: number;
+
+        /*
+         * Mostly for resetting values after a restart.
+         */
+        init() {
+            this.safeSquaresRemaining = 0;
+            this.score = 0;
+        }
 
         // Text
         scoreText: Phaser.Text;
