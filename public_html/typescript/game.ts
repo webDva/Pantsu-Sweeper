@@ -1,7 +1,7 @@
 /*
  * Template
  */
-module GameModuleName {
+module PantsuSweeper {
     /*
      * Boot state for only loading the loading screen
      */
@@ -69,7 +69,7 @@ module GameModuleName {
         constructor(gameState: GameState, x: number, y: number, key: Phaser.BitmapData) {
             super(gameState.game, x, y, key);
 
-            let theGame = gameState; // For accessing the list of currently active squares and stuff.
+            let theGame = gameState; // For accessing the list of currently active squares and stuff. Don't really like doing this practice of sharing data like this.
 
             // Make the square clickable.
             this.inputEnabled = true;
@@ -77,6 +77,7 @@ module GameModuleName {
             // Callback that handles what happens when this square is clicked on.
             this.events.onInputDown.add(() => {
                 if (this.isTrapSqaure) {
+                    theGame.destroySquare(this);
                     theGame.trapSquareSound.play();
                     theGame.enterGameOverState();
                 } else if (this.isRewardSquare) {
@@ -84,10 +85,10 @@ module GameModuleName {
                     theGame.destroySquare(this); // Destroy this square, first, though.
                     let numberOfSquaresDestroyed = 0;
                     while (numberOfSquaresDestroyed != 10) {
-                        if (theGame.allSquares.length < 1) {
+                        if (theGame.squaresGroup.length < 1) {
                             break;
                         }
-                        theGame.destroySquare(theGame.allSquares[Math.floor(Math.random() * (Math.floor(theGame.allSquares.length) - Math.ceil(0))) + Math.ceil(0)]);
+                        theGame.destroySquare(<Square> theGame.squaresGroup.getChildAt(Math.floor(Math.random() * (Math.floor(theGame.squaresGroup.length) - Math.ceil(0))) + Math.ceil(0)));
                         numberOfSquaresDestroyed++;
                         theGame.rewardSquareSound.play();
                     }
@@ -116,7 +117,7 @@ module GameModuleName {
         game: Phaser.Game;
 
         // The following set of variables are for handling square field states and square fields themselves.
-        allSquares: Array<Square>;
+        squaresGroup: Phaser.Group;
         widthMine: number = Square.WIDTH_AND_HEIGHT;
         heightMine: number = Square.WIDTH_AND_HEIGHT;
         safeSquaresRemaining: number = 0;
@@ -131,22 +132,24 @@ module GameModuleName {
         rewardSquareSound: Phaser.Sound;
         trapSquareSound: Phaser.Sound;
 
+        isGameOver: boolean = false;
+
         createSquareField(rows: number, columns: number) {
             let location = new Phaser.Point(0, 0); // location is the upper-left 2D vector position.
-            this.allSquares = [];
+            this.squaresGroup = this.game.add.group();
             for (let i = 0; i < rows; i++) {
                 for (let j = 0; j < columns; j++) {
-                    this.allSquares.push(new Square(this, this.widthMine * j + j * 2 + location.x, this.heightMine * i + i * 2 + location.y, this.game.cache.getBitmapData("square")));
-                    if (this.allSquares[this.allSquares.length - 1].isTrapSqaure === false) {
+                    let newSquare = new Square(this, this.widthMine * j + j * 2 + location.x, this.heightMine * i + i * 2 + location.y, this.game.cache.getBitmapData("square"));
+                    if (newSquare.isTrapSqaure === false) {
                         this.safeSquaresRemaining++;
                     }
+                    this.squaresGroup.add(newSquare);
                 }
             }
         }
 
         destroySquare(square: Square) {
-            square.destroy();
-            this.allSquares.splice(this.allSquares.indexOf(square), 1);
+            this.squaresGroup.remove(square, true);
             if (!square.isTrapSqaure) {
                 this.safeSquaresRemaining--;
                 this.safeSquaresRemainingText.text = 'Safes left: ' + this.safeSquaresRemaining;
@@ -156,7 +159,12 @@ module GameModuleName {
         }
 
         enterGameOverState() {
+            this.isGameOver = true;
+            this.enterRestartState();
+        }
 
+        enterRestartState() {
+            this.game.state.start("BootState", true);
         }
 
         constructor() {
@@ -209,5 +217,5 @@ module GameModuleName {
 }
 
 window.onload = () => {
-    let game = new GameModuleName.Game();
+    let game = new PantsuSweeper.Game();
 };
